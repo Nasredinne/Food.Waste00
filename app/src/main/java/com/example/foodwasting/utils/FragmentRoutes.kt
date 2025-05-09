@@ -12,5 +12,4 @@ sealed class FragmentRoutes(
     object Profile : FragmentRoutes("Profile", "profile", R.drawable.ic_person)
     object Settings : FragmentRoutes("Settings", "settings", R.drawable.ic_home)
 
-
 }
