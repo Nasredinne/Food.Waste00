@@ -29,7 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -39,6 +42,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import co.yml.charts.axis.AxisConfig
+import co.yml.charts.axis.AxisData
+import co.yml.charts.axis.DataCategoryOptions
+import co.yml.charts.axis.Gravity
+import co.yml.charts.common.model.PlotType
+import co.yml.charts.common.model.Point
+import co.yml.charts.common.utils.DataUtils
+import co.yml.charts.ui.barchart.BarChart
+import co.yml.charts.ui.barchart.models.BarChartData
+import co.yml.charts.ui.barchart.models.BarChartType
+import co.yml.charts.ui.barchart.models.BarData
+import co.yml.charts.ui.barchart.models.BarStyle
+import co.yml.charts.ui.piechart.charts.DonutPieChart
+import co.yml.charts.ui.piechart.models.PieChartConfig
+import co.yml.charts.ui.piechart.models.PieChartData
 import com.example.foodwasting.R
 import com.example.foodwasting.model.Recipie
 import com.example.foodwasting.ui.theme.backgroundDark
@@ -138,12 +156,12 @@ private fun Recepiecard(
             recipie.title,
             style = TextStyle(color = Color.Green,
                 fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
                 fontFamily = bodyFontFamily
                 ),
             modifier = Modifier.padding(bottom = 5.dp)
         )
         Text(recipie.centent, style = TextStyle(fontSize = 15.sp,
-            fontStyle = FontStyle.Italic,
             fontFamily = bodyFontFamily
             ))
     }
@@ -178,3 +196,92 @@ fun categories(modifier: Modifier = Modifier) {
 
 }
 
+@Composable
+fun FoodGraph(modifier: Modifier = Modifier) {
+    val donutChartData = PieChartData(
+        slices = listOf(
+            PieChartData.Slice("apple", 15f, Color(0xFF5F0A87)),
+            PieChartData.Slice("orange", 30f, Color(0xFF20BF55)),
+            PieChartData.Slice("khobs", 40f, Color(0xFFEC9F05)),
+            PieChartData.Slice("potato", 10f, Color(0xFFF53844))
+        ),
+        plotType = PlotType.Donut
+    )
+    val donutChartConfig = PieChartConfig(
+        //isAnimationEnable = true,
+        strokeWidth = 50f,
+        showSliceLabels = true,
+        activeSliceAlpha = 1f,
+        animationDuration = 600,
+
+    )
+    DonutPieChart(
+        modifier = modifier,
+        donutChartData,
+        donutChartConfig,
+        onSliceClick = {}
+    )
+
+}
+   
+@Preview
+@Composable
+fun FoodBarChart(modifier: Modifier = Modifier) {
+    val yStepSize = 10
+    val maxRange=50
+
+    data class BarEntry(
+        val label: String,
+        val value: Float
+    )
+
+    val barData = listOf(
+        BarEntry("tomato", 120.5f),
+        BarEntry("potato", 90.0f),
+        BarEntry("khobs", 130.0f),
+        BarEntry("carrot", 70.5f),
+        BarEntry("orange", 160.0f)
+    )
+
+// Map barData to BarData for ycharts
+    val chartData = barData.mapIndexed { index, entry ->
+        BarData(
+            point = Point(x = index.toFloat(), y = entry.value),
+            color = Color.hsl(index * 60f, 0.7f, 0.5f), // Unique colors
+            label = entry.label
+        )
+    }
+
+
+    val xAxisData = AxisData
+        .Builder()
+        .axisStepSize(20.dp)
+        .steps(chartData.size - 1)
+        .axisOffset(5.dp)
+        .axisLabelAngle(20f)
+        .labelData { index -> barData[index].label }
+        .startDrawPadding(20.dp)
+        .axisConfig(AxisConfig(shouldEllipsizeAxisLabel = false))
+        .shouldDrawAxisLineTillEnd(true)
+        .build()
+
+
+
+
+    val yAxisData = AxisData
+        .Builder()
+        .steps(yStepSize)
+        .labelAndAxisLinePadding(20.dp)
+        .labelData { index -> (index * (maxRange / yStepSize)).toString() }
+        .axisLineColor(Color.Red)
+        .build()
+
+    val barChartDatas = BarChartData(
+        chartData = chartData,
+        xAxisData = xAxisData,
+        yAxisData = yAxisData,
+        barStyle = BarStyle(barWidth = 10.dp)
+
+    )
+    BarChart(modifier = modifier.fillMaxSize(),                                                                                                                                      barChartData = barChartDatas)
+}
