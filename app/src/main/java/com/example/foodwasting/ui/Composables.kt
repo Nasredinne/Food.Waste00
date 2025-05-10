@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,75 +42,84 @@ import androidx.compose.ui.unit.sp
 import com.example.foodwasting.R
 import com.example.foodwasting.model.Recipie
 import com.example.foodwasting.ui.theme.backgroundDark
+import com.example.foodwasting.ui.theme.bodyFontFamily
 import com.example.foodwasting.ui.theme.fontAladin
 import com.example.foodwasting.ui.theme.fontEconomica
 import com.example.foodwasting.ui.theme.lightBackground
 import com.example.foodwasting.ui.theme.onPrimaryLight
 
 @Composable
-fun SearchBar(modifier: Modifier = Modifier ) {
+fun SearchBar(modifier: Modifier = Modifier) {
     var textFealdvaluew by remember {
         mutableStateOf("")
     }
     Row {
-        for (i in 1..5){
-        Card(
-            modifier = Modifier
-                .size(width = 50.dp, height = 20.dp)
-                .padding(3.dp)
-                .clip(shape = RoundedCornerShape(20.dp))
-            ,
-            colors = CardDefaults.cardColors(
-                containerColor = Color.Gray,
-                contentColor = Color.White
-            )
-        ){
-            Text("tag", modifier = Modifier.padding(5.dp))
-        }
+        for (i in 1..5) {
+            Card(
+                modifier = Modifier
+                    .size(width = 50.dp, height = 20.dp)
+                    .padding(3.dp)
+                    .height(35.dp)
+                    .clip(shape = RoundedCornerShape(20.dp)),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Gray,
+                    contentColor = Color.White
+                )
+            ) {
+                Text("tag", modifier = Modifier.padding(5.dp),
+                    fontSize = 11.sp,
+                    color = Color.White
+                    )
+            }
         }
     }
     OutlinedTextField(
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(12.dp),
         value = textFealdvaluew,
-        label = { Text("Enter Your Name", modifier = Modifier.fillMaxWidth()) },
+        label = { Text("Enter Your Name") },
         onValueChange = { textFealdvaluew = it },
-        modifier = modifier)
+        modifier = modifier
+            .fillMaxWidth()
+            .height(66.dp)
+
+    )
 }
 
 @Composable
-fun FoodCard(text: String,
-             list:List<Recipie>,
-             color: Color, modifier: Modifier = Modifier) {
+fun FoodCard(
+    text: String,
+    list: List<Recipie>,
+    color: Color, modifier: Modifier = Modifier
+) {
     Card(
         modifier = modifier
             .background(color = lightBackground)
-            .border(2.dp, color = color , shape = RoundedCornerShape(20.dp))
-        ,
+            .border(2.dp, color = color, shape = RoundedCornerShape(20.dp)),
 
-    )
+        )
     {
-            Column (Modifier.background(color = lightBackground)){
-                Text(
-                    text,
-                    style = TextStyle(color = color, fontFamily = fontAladin),
-                    fontSize = 30.sp,
-                    modifier = Modifier
-                        .align(alignment = Alignment.Start)
-                        .padding(start = 10.dp, top = 10.dp)
+        Column(Modifier.background(color = lightBackground)) {
+            Text(
+                text,
+                style = TextStyle(color = color, fontFamily = fontAladin),
+                fontSize = 30.sp,
+                modifier = Modifier
+                    .align(alignment = Alignment.Start)
+                    .padding(start = 10.dp, top = 10.dp)
 
-                )
-                LazyRow(
-                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.Top,
-                    modifier = Modifier.fillMaxSize()
+            )
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.Top,
+                modifier = Modifier.fillMaxSize()
 
 
-                ) {
-                    items(list) { item ->
-                        Recepiecard(item)
-                    }
+            ) {
+                items(list) { item ->
+                    Recepiecard(item)
                 }
             }
+        }
 
     }
 }
@@ -119,17 +129,29 @@ fun FoodCard(text: String,
 private fun Recepiecard(
     recipie: Recipie
 ) {
-    Column (modifier = Modifier
-        .padding(5.dp)
-        .background(Color.White)){
-        Text(recipie.title , style = TextStyle(color = Color.Green , fontSize = 20.sp ) , modifier = Modifier.padding(bottom = 5.dp))
-        Text(recipie.centent , style = TextStyle(fontSize = 15.sp , fontStyle = FontStyle.Italic))
+    Column(
+        modifier = Modifier
+            .padding(5.dp)
+            .background(Color.White)
+    ) {
+        Text(
+            recipie.title,
+            style = TextStyle(color = Color.Green,
+                fontSize = 20.sp,
+                fontFamily = bodyFontFamily
+                ),
+            modifier = Modifier.padding(bottom = 5.dp)
+        )
+        Text(recipie.centent, style = TextStyle(fontSize = 15.sp,
+            fontStyle = FontStyle.Italic,
+            fontFamily = bodyFontFamily
+            ))
     }
 }
 
 
 @Composable
-fun categories(modifier: Modifier = Modifier ) {
+fun categories(modifier: Modifier = Modifier) {
     val png = R.drawable.img_apple
     val foodList = listOf(
         png,
@@ -145,9 +167,12 @@ fun categories(modifier: Modifier = Modifier ) {
         png,
     )
     LazyRow {
-        items(foodList){
-            item ->
-            Image(modifier= Modifier.size(100.dp),painter = painterResource(item),contentDescription = "Apple")
+        items(foodList) { item ->
+            Image(
+                modifier = Modifier.size(100.dp),
+                painter = painterResource(item),
+                contentDescription = "Apple"
+            )
         }
     }
 
