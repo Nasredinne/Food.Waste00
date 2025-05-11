@@ -54,6 +54,16 @@ import co.yml.charts.ui.barchart.models.BarChartData
 import co.yml.charts.ui.barchart.models.BarChartType
 import co.yml.charts.ui.barchart.models.BarData
 import co.yml.charts.ui.barchart.models.BarStyle
+import co.yml.charts.ui.linechart.LineChart
+import co.yml.charts.ui.linechart.model.GridLines
+import co.yml.charts.ui.linechart.model.IntersectionPoint
+import co.yml.charts.ui.linechart.model.Line
+import co.yml.charts.ui.linechart.model.LineChartData
+import co.yml.charts.ui.linechart.model.LinePlotData
+import co.yml.charts.ui.linechart.model.LineStyle
+import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
+import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
+import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import co.yml.charts.ui.piechart.charts.DonutPieChart
 import co.yml.charts.ui.piechart.models.PieChartConfig
 import co.yml.charts.ui.piechart.models.PieChartData
@@ -284,4 +294,54 @@ fun FoodBarChart(modifier: Modifier = Modifier) {
 
     )
     BarChart(modifier = modifier.fillMaxSize(),                                                                                                                                      barChartData = barChartDatas)
+}
+
+
+@Composable
+fun FoodLineChart(modifier: Modifier = Modifier) {
+
+    val steps = 10
+    val yScale = 20 / steps
+
+    val pointsData: List<Point> =
+        listOf(Point(0f, 40f), Point(1f, 90f), Point(2f, 0f), Point(3f, 60f), Point(4f, 10f))
+
+    val xAxisData = AxisData.Builder()
+        .axisStepSize(100.dp)
+        .steps(pointsData.size - 1)
+        .labelData { i -> i.toString() }
+        .labelAndAxisLinePadding(15.dp)
+        .build()
+
+    val yAxisData = AxisData.Builder()
+        .steps(steps)
+        .labelAndAxisLinePadding(20.dp)
+        .labelData { i -> (i * yScale).toString() }
+        .build()
+
+    val lineChartData = LineChartData(
+        linePlotData = LinePlotData(
+            lines = listOf(
+                Line(
+                    dataPoints = pointsData,
+                    LineStyle(),
+                    IntersectionPoint(),
+                    SelectionHighlightPoint(),
+                    ShadowUnderLine(),
+                    SelectionHighlightPopUp()
+                )
+            ),
+        ),
+        xAxisData = xAxisData,
+        yAxisData = yAxisData,
+        gridLines = GridLines(),
+        backgroundColor = Color.White
+    )
+
+    LineChart(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp),
+        lineChartData = lineChartData
+    )
 }

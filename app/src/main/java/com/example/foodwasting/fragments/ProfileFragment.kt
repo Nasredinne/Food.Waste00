@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.example.foodwasting.R
 import com.example.foodwasting.ui.FoodBarChart
 import com.example.foodwasting.ui.FoodGraph
+import com.example.foodwasting.ui.FoodLineChart
 import com.example.foodwasting.ui.theme.lightBackground
 import com.example.foodwasting.ui.theme.lightgreen
 
@@ -144,31 +145,38 @@ fun ProfileFragment(){
 
         Row (
             Modifier
-                .fillMaxWidth() ,
+                .fillMaxWidth()
+                .padding(vertical = 5.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
 
-        ){
-
-
-            FoodBarChart(modifier = Modifier
+        ) {
+            Box (modifier = Modifier
                 .weight(0.9f)
                 .height(200.dp)
                 .fillMaxSize()
                 .background(lightBackground)
+                .border(2.dp, color = lightgreen, shape = RoundedCornerShape(20.dp))
                 .padding(2.dp)
-
-                ,
-                )
-
-
-            FoodGraph(modifier = Modifier
+                ,){
+            FoodBarChart(Modifier.padding(2.dp))
+        }
+            Spacer(Modifier.width(10.dp))
+            Box(modifier = Modifier
                 .weight(0.9f)
                 .height(200.dp)
                 .background(lightBackground)
                 .border(2.dp, color = lightgreen, shape = RoundedCornerShape(20.dp))
                 .padding(2.dp),
+                content = {FoodGraph(Modifier.padding(5.dp))}
+            )
 
-                )
+        }
+        Box(Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .border(2.dp, color = lightgreen, shape = RoundedCornerShape(20.dp))
+        ){
+            FoodLineChart()
         }
 
 
