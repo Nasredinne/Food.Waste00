@@ -15,11 +15,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -38,28 +36,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.foodwasting.model.Recipie
 import com.example.foodwasting.ui.FoodCard
-import com.example.foodwasting.ui.SearchBar
 import com.example.foodwasting.ui.categories
 import com.example.foodwasting.ui.theme.fontAladin
 import com.example.foodwasting.ui.theme.lightBackground
 import com.example.foodwasting.ui.theme.lightgreen
 import com.example.foodwasting.ui.theme.onPrimaryLight
 import com.example.foodwasting.ui.theme.secondaryLightMediumContrast
+import com.example.foodwasting.utils.Routes
 
 
-@Preview
+
 @Composable
-fun HomeFragment() {
+fun HomeFragment(navController: NavController) {
 
     val recipList = listOf(
         Recipie("Test", "Test Content"),
@@ -211,7 +207,9 @@ fun HomeFragment() {
         }
 
         Button(
-            onClick = { println("hello") },
+            onClick = {
+                navController.navigate(Routes.cameraScreen.route)
+                    },
             colors = buttonColors(
                 containerColor = lightgreen,
                 contentColor = onPrimaryLight
@@ -231,3 +229,4 @@ fun HomeFragment() {
     }
 
 }
+

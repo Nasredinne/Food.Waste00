@@ -1,7 +1,7 @@
 package com.example.foodwasting.utils
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHost
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,16 +11,14 @@ import com.example.foodwasting.fragments.SettingsFragment
 
 
 @Composable
-fun BottomNavHost(navController: NavHostController){
-
-
+fun BottomNavHost(navController: NavHostController, navCamController: NavController){
 
     NavHost (
         navController=navController,
         startDestination = FragmentRoutes.Home.route
     ){
         composable(FragmentRoutes.Home.route){
-            HomeFragment()
+            HomeFragment(navCamController)
         }
         composable(FragmentRoutes.Profile.route) {
             ProfileFragment()
@@ -28,6 +26,8 @@ fun BottomNavHost(navController: NavHostController){
         composable(FragmentRoutes.Settings.route) {
             SettingsFragment()
         }
+
     }
 
 }
+
