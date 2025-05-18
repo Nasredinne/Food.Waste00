@@ -41,6 +41,7 @@ android {
 
 dependencies {
 
+    implementation(libs.litert)
     val camerax_version = "1.4.0-rc01"
         // The following line is optional, as the core library is included indirectly by camera-camera2
     implementation("androidx.camera:camera-core:${camerax_version}")
@@ -56,6 +57,16 @@ dependencies {
         // If you want to additionally use the CameraX Extensions library
     implementation("androidx.camera:camera-extensions:${camerax_version}")
 
+/*
+    //tesnerflow
+    implementation("org.tensorflow:tensorflow-lite:2.17.0")
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.3")
+    implementation("org.tensorflow:tensorflow-lite-gpu:2.17.0") // optional, for GPU acceleratio
+    */
+
+    // Keep these
+    implementation ("com.google.ai.edge.litert:litert-api:1.0.1")
+    implementation ("com.google.ai.edge.litert:litert-support-api:1.0.1")
 
 
     implementation(libs.androidx.core.ktx)

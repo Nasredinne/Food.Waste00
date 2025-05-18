@@ -21,14 +21,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,6 +45,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.example.foodwasting.MainActivity
+import com.example.foodwasting.classification.TFLiteModel
+import com.example.foodwasting.classification.classify
 
 
 @SuppressLint("ContextCastToActivity")
@@ -60,6 +66,11 @@ fun CameraScreen(
 
 
       } */
+    var result by remember { mutableStateOf<FloatArray?>(null) }
+    var classificationResult = remember {
+        mutableStateOf<String>("")
+    }
+
     val context = LocalContext.current as MainActivity
     var imageBitted = remember {
         mutableStateOf<Bitmap?>(null)
@@ -84,14 +95,20 @@ fun CameraScreen(
             .fillMaxSize()
             .padding(0.dp)
     ) {
-        if (imageBitted.value != null)
+        if (imageBitted.value != null) {
             Image(
                 bitmap = imageBitted.value!!.asImageBitmap(),
                 contentDescription = "Captured Image",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit
             )
-        else
+            Text(
+                "Top result value: size ${result?.size} => ${classificationResult.value}",
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 30.dp)
+            )
+        } else
             CameraPreview(
                 controller = controller,
                 modifier = Modifier.fillMaxSize()
@@ -101,39 +118,48 @@ fun CameraScreen(
             onClick = {
                 controller.takePicture(
                     ContextCompat.getMainExecutor(context),
-                    object : OnImageCapturedCallback() {
+                    object : androidx.camera.core.ImageCapture.OnImageCapturedCallback() {
                         override fun onCaptureSuccess(image: ImageProxy) {
-                            super.onCaptureSuccess(image)
+                            try {
+                                val matrix = Matrix().apply {
+                                    postRotate(image.imageInfo.rotationDegrees.toFloat())
+                                }
+                                val rotatedBitmap = Bitmap.createBitmap(
+                                    image.toBitmap(),
+                                    0,
+                                    0,
+                                    image.width,
+                                    image.height,
+                                    matrix,
+                                    true
+                                )
 
-                            val matrix = Matrix().apply {
-                                postRotate(image.imageInfo.rotationDegrees.toFloat())
+                                imageBitted.value = rotatedBitmap
+
+                                // Run model inference
+                                val tfLiteModel = TFLiteModel(context)
+                                result = tfLiteModel.runModel(rotatedBitmap)
+
+                                Log.d("CameraScreen", "Model run successfully ${result?.joinToString("||")}")
+                                classificationResult.value = classify(result!!)
+                            } catch (e: Exception) {
+                                Log.e("CameraScreen", "Error during model run: ${e.message}")
+                                e.printStackTrace()
+                            } finally {
+                                image.close()
                             }
-                            val rotatedBitmap = Bitmap.createBitmap(
-                                image.toBitmap(),
-                                0,
-                                0,
-                                image.width,
-                                image.height,
-                                matrix,
-                                true
-                            )
-
-                            imageBitted.value = rotatedBitmap
-
-                            Log.e("CameraScreen", "Captured image")
                         }
 
                         override fun onError(exception: ImageCaptureException) {
-                            super.onError(exception)
-                            Log.e("CameraScreen", "Captured error ${exception}")
+                            Log.e("CameraScreen", "Capture error: ${exception.message}")
                             exception.printStackTrace()
                         }
                     }
                 )
             },
             modifier = Modifier
-                .padding(40.dp)
-                .align(Alignment.BottomEnd)
+                .padding(100.dp)
+                .align(Alignment.BottomCenter)
         ) { }
     }
 }

@@ -33,6 +33,7 @@ class MainActivity : ComponentActivity() {
 
             FoodWastingTheme {
 
+
                 val navController = rememberNavController()
                 NavHost(
                     navController = navController,
@@ -44,6 +45,7 @@ class MainActivity : ComponentActivity() {
                     composable(Routes.cameraScreen.route) {
                         CameraScreen(navController)
                     }
+
 
                 }
             }

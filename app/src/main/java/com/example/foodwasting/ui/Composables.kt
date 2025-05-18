@@ -113,6 +113,7 @@ fun SearchBar(modifier: Modifier = Modifier) {
     )
 }
 
+
 @Composable
 fun FoodCard(
     text: String,
@@ -155,11 +156,11 @@ fun FoodCard(
 
 @Composable
 private fun Recepiecard(
-    recipie: Recipie
+    recipie: Recipie = Recipie("ff","qdqsds")
 ) {
     Column(
         modifier = Modifier
-            .padding(5.dp)
+            .padding(8.dp)
             .background(Color.White)
     ) {
         Text(
@@ -234,7 +235,6 @@ fun FoodGraph(modifier: Modifier = Modifier) {
 
 }
    
-@Preview
 @Composable
 fun FoodBarChart(modifier: Modifier = Modifier) {
     val yStepSize = 10
