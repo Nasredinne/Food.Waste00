@@ -10,7 +10,7 @@ import java.nio.MappedByteBuffer
 
 class TFLiteModel(context: Context) {
     private var interpreter: Interpreter? = null
-    private val inputSize = 200 // Model input size (adjust based on your model)
+    private val inputSize = 224 // Model input size (adjust based on your model)
     private val numClasses = 18 // Number of output classes (adjust based on your model)
     private val pixelSize = 3 // RGB channels
     private val inputImageType =
@@ -51,7 +51,8 @@ class TFLiteModel(context: Context) {
         }
     }
 
-    private fun preprocessImage(bitmap: Bitmap): ByteBuffer {
+
+   private fun preprocessImage(bitmap: Bitmap): ByteBuffer {
         // Allocate ByteBuffer for input (float32, 4 bytes per value)
         val buffer = ByteBuffer.allocateDirect(
             1 * inputSize * inputSize * pixelSize * 4 // 4 bytes for float32
@@ -69,6 +70,8 @@ class TFLiteModel(context: Context) {
 
         return buffer
     }
+
+
 
     fun close() {
         interpreter?.close()

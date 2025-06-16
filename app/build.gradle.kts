@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.dagger.hilt.android)
+    kotlin("kapt")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -42,6 +45,7 @@ android {
 dependencies {
 
     implementation(libs.litert)
+    implementation(libs.androidx.media3.common.ktx)
     val camerax_version = "1.4.0-rc01"
         // The following line is optional, as the core library is included indirectly by camera-camera2
     implementation("androidx.camera:camera-core:${camerax_version}")
@@ -68,6 +72,35 @@ dependencies {
     implementation ("com.google.ai.edge.litert:litert-api:1.0.1")
     implementation ("com.google.ai.edge.litert:litert-support-api:1.0.1")
 
+    //for llm interaction
+    implementation ("com.aallam.openai:openai-client:4.0.1") // Use the latest version
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1") // For coroutines
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
+// Core Ktor
+    implementation("io.ktor:ktor-client-core:2.3.7")
+
+// Engine for Android
+    implementation("io.ktor:ktor-client-okhttp:2.3.7")
+
+// Serialization & JSON
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
+
+    // HILT DAGGER
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
+    kapt(libs.hilt.android.compiler)
+    kapt(libs.androidx.hilt.compiler)
+
+    // RETROFIT
+    // retrofit
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -91,4 +124,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+
+
+
 }

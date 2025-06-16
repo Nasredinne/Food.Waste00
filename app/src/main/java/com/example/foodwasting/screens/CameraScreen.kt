@@ -15,11 +15,15 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -46,7 +51,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.example.foodwasting.MainActivity
 import com.example.foodwasting.classification.TFLiteModel
+import com.example.foodwasting.classification.centerCrop
 import com.example.foodwasting.classification.classify
+import com.example.foodwasting.ui.theme.lightgreen
 
 
 @SuppressLint("ContextCastToActivity")
@@ -108,17 +115,32 @@ fun CameraScreen(
                     .align(Alignment.TopCenter)
                     .padding(top = 30.dp)
             )
-        } else
+        } else {
             CameraPreview(
                 controller = controller,
                 modifier = Modifier.fillMaxSize()
             )
+            Box(
+                modifier = Modifier
+                    .size(300.dp)
+                    .border(border = BorderStroke(1.dp , color = lightgreen))
+                    .align(Alignment.Center)
+            )
+        }
+        /*
+        val boxSizeInPx = 200f
 
+        // Convert pixels to dp inside a composable
+        val boxSizeInDp = with(LocalDensity.current) { boxSizeInPx.toDp() }
+
+        */
+
+        
         FloatingActionButton(
             onClick = {
                 controller.takePicture(
                     ContextCompat.getMainExecutor(context),
-                    object : androidx.camera.core.ImageCapture.OnImageCapturedCallback() {
+                    object : OnImageCapturedCallback() {
                         override fun onCaptureSuccess(image: ImageProxy) {
                             try {
                                 val matrix = Matrix().apply {
@@ -134,11 +156,13 @@ fun CameraScreen(
                                     true
                                 )
 
-                                imageBitted.value = rotatedBitmap
+                                val cropedImage = rotatedBitmap.centerCrop(500, 500)
+
+                                imageBitted.value = cropedImage
 
                                 // Run model inference
                                 val tfLiteModel = TFLiteModel(context)
-                                result = tfLiteModel.runModel(rotatedBitmap)
+                                result = tfLiteModel.runModel(cropedImage)
 
                                 Log.d("CameraScreen", "Model run successfully ${result?.joinToString("||")}")
                                 classificationResult.value = classify(result!!)
@@ -160,7 +184,7 @@ fun CameraScreen(
             modifier = Modifier
                 .padding(100.dp)
                 .align(Alignment.BottomCenter)
-        ) { }
+        ) {}
     }
 }
 

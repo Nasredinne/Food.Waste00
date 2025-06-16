@@ -3,70 +3,48 @@ package com.example.foodwasting.repository
 import android.util.Log
 import com.example.foodwasting.model.ChatMessage
 import com.example.foodwasting.model.ChatRequest
-import com.example.foodwasting.model.Recipe
 import dagger.hilt.android.scopes.ActivityScoped
-import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @ActivityScoped
 class MainRepository @Inject constructor(
-    private val api: JsonHandler
-) {
-    suspend fun makeRequest(foodName: String): Result<Recipe> {
-        return try {
+    val api: JsonHandler,
+
+    ) {
+
+    suspend fun makeRequest() {
+        try {
             val request = ChatRequest(
                 model = "gpt-4.1-nano",
                 messages = listOf(
                     ChatMessage(
                         role = "user",
                         content = """
-                            Provide a creative way to use $foodName to avoid food waste in JSON format with the following fields:
-                            - title
-                            - description
-                            - ingredients
-                            - instructions
-                        """.trimIndent()
+                    Provide a recipe in JSON format with:
+                    - title
+                    - description
+                    - recipe
+                """.trimIndent()
                     )
                 )
             )
-
             val response = api.chatCompletion(
                 apiKey = "Bearer ${JsonHandler.OPEN_AI_KEY}",
                 request = request
-            )
-
-            Log.d("NetworkCheck", "Response code: ${response.code()}")
-
+            )  // FIX: Change return type to Response<ChatResponse> or wrap in try
             if (response.isSuccessful) {
-                val json = Json {
-                    ignoreUnknownKeys = true
-                    isLenient = true
-                    encodeDefaults = true
-                }
-
-                val chatResponse = response.body() ?: throw IllegalStateException("Response body is null")
-                Log.d("NetworkCheck", "Response body: $chatResponse")
-
-                val recipeJsonString = chatResponse.choices.firstOrNull()?.message?.content
-                    ?: throw IllegalStateException("No content found in response")
-
-                val cleanedJsonString = recipeJsonString
-                    .replace("```json", "")
-                    .replace("```", "")
-                    .trim()
-
-                Log.d("RecipeJson", cleanedJsonString)
-
-                val recipe = json.decodeFromString<Recipe>(cleanedJsonString)
-                Result.success(recipe)
+                val content = response.body()?.choices?.firstOrNull()?.message?.content
+                Log.d("Success", "Recipe: $content")
             } else {
-                val errorMessage = response.errorBody()?.string() ?: "Unknown error"
-                Log.e("HTTP Error", errorMessage)
-                Result.failure(Exception("HTTP Error: $errorMessage"))
+                Log.e("HTTP Error", response.errorBody()?.string() ?: "Unknown error")
             }
         } catch (e: Exception) {
-            Log.e("Unhandled Exception", e.stackTraceToString())
-            Result.failure(e)
+            e.printStackTrace()
+            Log.e("Unhandled Exception", e.stackTraceToString())  // ✅ print full cause
         }
+
+
+
+
     }
 }

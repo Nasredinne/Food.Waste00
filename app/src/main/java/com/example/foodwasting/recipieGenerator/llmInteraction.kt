@@ -2,7 +2,6 @@ package com.example.foodwasting.recipieGenerator
 
 import android.util.Log
 import com.example.foodwasting.model.OPEN_AI_KEY
-import com.example.foodwasting.model.Recipe
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.OkHttp

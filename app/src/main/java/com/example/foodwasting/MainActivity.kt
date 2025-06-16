@@ -18,7 +18,10 @@ import com.example.foodwasting.screens.CameraScreen
 import com.example.foodwasting.screens.MainScreen
 import com.example.foodwasting.ui.theme.FoodWastingTheme
 import com.example.foodwasting.utils.Routes
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {

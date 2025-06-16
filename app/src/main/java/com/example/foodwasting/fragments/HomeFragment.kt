@@ -1,5 +1,6 @@
 package com.example.foodwasting.fragments
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -37,11 +38,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.foodwasting.R
 import com.example.foodwasting.model.Recipie
 import com.example.foodwasting.ui.FoodCard
 import com.example.foodwasting.ui.categories
@@ -51,7 +56,6 @@ import com.example.foodwasting.ui.theme.lightgreen
 import com.example.foodwasting.ui.theme.onPrimaryLight
 import com.example.foodwasting.ui.theme.secondaryLightMediumContrast
 import com.example.foodwasting.utils.Routes
-
 
 
 @Composable
@@ -69,14 +73,24 @@ fun HomeFragment(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(color = lightBackground)
+
     ) {
+
+        Image(
+            painter = painterResource(R.drawable.img_fruit) ,
+            contentDescription = "image" ,
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.TopStart)
+        )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.9f)
-                //.padding(bottom = 90.dp)
-                .background(color = lightBackground)
+                .padding(horizontal = 16.dp)
+
+
         ) {
 
 
@@ -229,4 +243,5 @@ fun HomeFragment(navController: NavController) {
     }
 
 }
+
 
