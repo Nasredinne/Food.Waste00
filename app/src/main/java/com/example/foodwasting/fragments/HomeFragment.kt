@@ -60,7 +60,6 @@ import com.example.foodwasting.utils.Routes
 
 @Composable
 fun HomeFragment(navController: NavController) {
-
     val recipList = listOf(
         Recipie("Test", "Test Content"),
         Recipie("Test", "Test Content"),
@@ -221,9 +220,7 @@ fun HomeFragment(navController: NavController) {
         }
 
         Button(
-            onClick = {
-                navController.navigate(Routes.cameraScreen.route)
-                    },
+            onClick = { navController.navigate(Routes.cameraScreen.route) },
             colors = buttonColors(
                 containerColor = lightgreen,
                 contentColor = onPrimaryLight

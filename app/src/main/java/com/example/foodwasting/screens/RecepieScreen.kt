@@ -14,22 +14,33 @@ import com.example.foodwasting.viewmodel.RecipeState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeScreen(viewModel: MainViewModel = hiltViewModel()) {
-    LaunchedEffect(Unit) {
-        viewModel.makeRequest("rotten apple") // Pass the food name
+fun RecipeScreen(
+    // In a real app, you would pass this from the previous screen
+    foodName: String = "rotten apple",
+    viewModel: MainViewModel = hiltViewModel()
+) {
+    // This will trigger the request once when the screen is first composed
+    // or if the foodName ever changes.
+    LaunchedEffect(foodName) {
+        viewModel.makeRequest(foodName)
     }
 
-    val recipeState = viewModel.recipeState
+    // ⭐ FIX #1: Collect the state from the StateFlow into a Compose State.
+    // This ensures your UI recomposes when the state changes.
+    val recipeState by viewModel.recipeState.collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = when (recipeState) {
-                            is RecipeState.Success -> recipeState.recipe?.title ?: "Recipe"
+                        // ⭐ FIX #2: Use the local 'recipeState' variable.
+                        // The smart cast now works because the compiler knows 'state' is stable.
+                        text = when (val state = recipeState) {
+                            is RecipeState.Success -> state.recipe.title.ifEmpty { "Recipe" }
                             is RecipeState.Error -> "Error"
-                            RecipeState.Idle -> "Idle"
-                            RecipeState.Loading -> "Loading"
+                            is RecipeState.Idle -> "Recipe Finder"
+                            is RecipeState.Loading -> "Loading Recipe..."
                         },
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
@@ -49,11 +60,18 @@ fun RecipeScreen(viewModel: MainViewModel = hiltViewModel()) {
                 .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
-            when (recipeState) {
+            // ⭐ FIX #2 (continued): Create a stable local variable 'state' for the when block.
+            when (val state = recipeState) {
                 is RecipeState.Idle -> Text("No recipe requested")
                 is RecipeState.Loading -> CircularProgressIndicator()
-                is RecipeState.Success -> recipeState.recipe?.let { RecipeContent(it) }
-                is RecipeState.Error -> ErrorContent(recipeState.message, viewModel)
+                // The smart cast to 'Success' now works perfectly.
+                is RecipeState.Success -> RecipeContent(state.recipe)
+                // The smart cast to 'Error' also works.
+                is RecipeState.Error -> ErrorContent(
+                    message = state.message,
+                    // ⭐ FIX #3: Pass a lambda for the retry action.
+                    onRetry = { viewModel.makeRequest(foodName) }
+                )
             }
         }
     }
@@ -67,6 +85,7 @@ fun RecipeContent(recipe: Recipe) {
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // ... your RecipeContent code is perfect, no changes needed ...
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -143,8 +162,10 @@ fun RecipeContent(recipe: Recipe) {
     }
 }
 
+
+// ⭐ FIX #3 (continued): Change the signature to accept a lambda.
 @Composable
-fun ErrorContent(message: String, viewModel: MainViewModel) {
+fun ErrorContent(message: String, onRetry: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -157,7 +178,8 @@ fun ErrorContent(message: String, viewModel: MainViewModel) {
             style = MaterialTheme.typography.bodyLarge
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = { viewModel.makeRequest("rotten apple") }) {
+        // The onClick now calls the lambda, which resolves the 'makeRequest' reference.
+        Button(onClick = onRetry) {
             Text("Retry")
         }
     }

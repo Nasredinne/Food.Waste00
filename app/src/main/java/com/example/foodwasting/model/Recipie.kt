@@ -19,7 +19,11 @@ data class ChatMessage(
 @Serializable
 data class ChatRequest(
     val model: String,
-    val messages: List<ChatMessage>
+    val messages: List<ChatMessage>,
+    // ⭐ ADD THIS NEW FIELD ⭐
+    // Use @SerialName to match the API's snake_case convention
+    @SerialName("response_format")
+    val responseFormat: Map<String, String>? = null // Make it nullable
 )
 
 @Serializable
@@ -35,8 +39,8 @@ data class ChatResponse(
 
 @Serializable
 data class Recipe(
-    val title: String,
-    val description: String,
-    val ingredients: List<String>,
-    val instructions: List<String>
+    val title: String = "",
+    val description: String="",
+    val ingredients: List<String> =emptyList(),
+    val instructions: List<String> =emptyList()
 )

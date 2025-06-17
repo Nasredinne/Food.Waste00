@@ -1,44 +1,104 @@
 package com.example.foodwasting.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.util.Log
+import androidx.camera.core.ImageProxy
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.foodwasting.classification.TFLiteModel
+import com.example.foodwasting.classification.centerCrop
+import com.example.foodwasting.classification.classify
 import com.example.foodwasting.model.Recipe
 import com.example.foodwasting.repository.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.Result
+
+// This sealed class definition is correct and well-structured.
+sealed class RecipeState {
+    data object Idle : RecipeState()
+    data object Loading : RecipeState()
+    data class Success(val recipe: Recipe) : RecipeState()
+    data class Error(val message: String) : RecipeState()
+}
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository: MainRepository,
+    @ApplicationContext private val applicationContext: Context
 ) : ViewModel() {
-    var recipeState by mutableStateOf<RecipeState>(RecipeState.Idle)
-        private set
 
+    private val _recipeState = MutableStateFlow<RecipeState>(RecipeState.Idle)
+    val recipeState = _recipeState.asStateFlow()
+
+    // ⭐ THIS IS THE NEW FUNCTION YOU NEED TO ADD ⭐
+    /**
+     * Fetches a recipe directly from a food name string.
+     * This is used by RecipeScreen.
+     */
     fun makeRequest(foodName: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            recipeState = RecipeState.Loading
-            val result = repository.makeRequest(foodName)
-            if (result.isSuccess) {
-                recipeState = RecipeState.Success(result.getOrNull())
-            } else {
-                recipeState = RecipeState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
-            }
-
+        viewModelScope.launch {
+            _recipeState.value = RecipeState.Loading
+            Log.d("ViewModel", "Requesting recipe for: $foodName")
+            repository.makeRequest(foodName)
+                .onSuccess { recipe ->
+                    _recipeState.value = RecipeState.Success(recipe)
+                    Log.d("ViewModel", "Successfully fetched recipe for '$foodName'")
+                }
+                .onFailure { exception ->
+                    val errorMessage = exception.message ?: "An unknown error occurred"
+                    _recipeState.value = RecipeState.Error(errorMessage)
+                    Log.e("ViewModel", "Error fetching recipe for '$foodName'", exception)
+                }
         }
+    }
+
+    /**
+     * Processes a camera image, classifies it, and then fetches a recipe.
+     * This is used by CameraScreen.
+     */
+    fun processImageAndFetchRecipe(image: ImageProxy) {
+        viewModelScope.launch {
+            _recipeState.value = RecipeState.Loading
+            try {
+                val rotatedBitmap = image.toBitmap().rotate(image.imageInfo.rotationDegrees.toFloat())
+                val croppedImage = rotatedBitmap.centerCrop(500, 500)
+
+                val tfLiteModel = TFLiteModel(applicationContext)
+                val classificationScores = tfLiteModel.runModel(croppedImage)
+                val foodName = classify(classificationScores)
+                Log.d("ViewModel", "Classified food: $foodName")
+
+                // After classifying, we can just call the other function to avoid code duplication.
+                makeRequest(foodName)
+
+            } catch (e: Exception) {
+                Log.e("ViewModel", "An error occurred during image processing", e)
+                _recipeState.value = RecipeState.Error("Failed to process image.")
+            } finally {
+                // This is CRITICAL. Always close the ImageProxy.
+                image.close()
+            }
+        }
+    }
+
+    /**
+     * A helper function to reset the state, e.g., when the user dismisses a bottom sheet.
+     */
+    fun resetState() {
+        _recipeState.value = RecipeState.Idle
     }
 }
 
-
-
-sealed class RecipeState {
-    object Idle : RecipeState()
-    object Loading : RecipeState()
-    data class Success(val recipe: Recipe?) : RecipeState()
-    data class Error(val message: String) : RecipeState()
+/**
+ * Helper extension function for rotating a bitmap.
+ */
+private fun Bitmap.rotate(degrees: Float): Bitmap {
+    val matrix = Matrix().apply { postRotate(degrees) }
+    return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
 }

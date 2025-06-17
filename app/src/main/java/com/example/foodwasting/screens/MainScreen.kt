@@ -59,7 +59,6 @@ fun MainScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                     ) {
-
                         Text(
                             "Home",
                             color = darkGreenT,
