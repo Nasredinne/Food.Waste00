@@ -37,5 +37,6 @@ data class ChatResponse(
 data class Recipe(
     val title: String,
     val description: String,
-    val recipe: String
+    val ingredients: List<String>,
+    val instructions: List<String>
 )

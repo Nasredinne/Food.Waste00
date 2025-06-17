@@ -103,7 +103,7 @@ fun CameraScreen(
             .padding(0.dp)
     ) {
         if (imageBitted.value != null) {
-            Image(
+            /*Image(
                 bitmap = imageBitted.value!!.asImageBitmap(),
                 contentDescription = "Captured Image",
                 modifier = Modifier.fillMaxSize(),
@@ -114,7 +114,8 @@ fun CameraScreen(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = 30.dp)
-            )
+            )*/
+
         } else {
             CameraPreview(
                 controller = controller,

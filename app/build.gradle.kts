@@ -5,6 +5,9 @@ plugins {
     alias(libs.plugins.dagger.hilt.android)
     kotlin("kapt")
     id("kotlin-parcelize")
+    id("kotlin-android")
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.24"
+
 }
 
 android {
@@ -88,18 +91,22 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
 
     // HILT DAGGER
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
     kapt(libs.hilt.android.compiler)
     kapt(libs.androidx.hilt.compiler)
+    implementation("androidx.compose.material3:material3:1.3.0")
+    implementation("com.google.dagger:hilt-android:2.51")
+    kapt("com.google.dagger:hilt-compiler:2.51")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // RETROFIT
-    // retrofit
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
 
 
     implementation(libs.androidx.core.ktx)
