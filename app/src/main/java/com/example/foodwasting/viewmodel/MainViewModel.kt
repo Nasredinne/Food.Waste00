@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.foodwasting.classification.TFLiteModel
 import com.example.foodwasting.classification.centerCrop
 import com.example.foodwasting.classification.classify
+import com.example.foodwasting.classification.getTopClassificationLabel
 import com.example.foodwasting.model.Recipe
 import com.example.foodwasting.repository.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +31,7 @@ sealed class RecipeState {
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository: MainRepository,
+    private val tfLiteModel: TFLiteModel,
     @ApplicationContext private val applicationContext: Context
 ) : ViewModel() {
 
@@ -62,37 +64,42 @@ class MainViewModel @Inject constructor(
      * Processes a camera image, classifies it, and then fetches a recipe.
      * This is used by CameraScreen.
      */
+// In MainViewModel.kt
+
     fun processImageAndFetchRecipe(image: ImageProxy) {
         viewModelScope.launch {
             _recipeState.value = RecipeState.Loading
             try {
                 val rotatedBitmap = image.toBitmap().rotate(image.imageInfo.rotationDegrees.toFloat())
-                val croppedImage = rotatedBitmap.centerCrop(500, 500)
+                // The crop size should match your model input size for consistency
+                val croppedImage = rotatedBitmap.centerCrop(224, 224)
 
-                val tfLiteModel = TFLiteModel(applicationContext)
+                // ⭐ REUSE THE INJECTED INSTANCE - MUCH FASTER! ⭐
                 val classificationScores = tfLiteModel.runModel(croppedImage)
-                val foodName = classify(classificationScores)
-                Log.d("ViewModel", "Classified food: $foodName")
 
-                // After classifying, we can just call the other function to avoid code duplication.
-                makeRequest(foodName)
+                val topFoodName = getTopClassificationLabel(classificationScores)
+                Log.d("ViewModel", "Classified food: $topFoodName")
+                makeRequest(topFoodName)
 
             } catch (e: Exception) {
                 Log.e("ViewModel", "An error occurred during image processing", e)
                 _recipeState.value = RecipeState.Error("Failed to process image.")
             } finally {
-                // This is CRITICAL. Always close the ImageProxy.
                 image.close()
             }
         }
     }
-
     /**
      * A helper function to reset the state, e.g., when the user dismisses a bottom sheet.
      */
     fun resetState() {
         _recipeState.value = RecipeState.Idle
     }
+    override fun onCleared() {
+        super.onCleared()
+        tfLiteModel.close()
+    }
+
 }
 
 /**

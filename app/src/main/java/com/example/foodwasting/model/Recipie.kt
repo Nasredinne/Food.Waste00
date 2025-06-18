@@ -16,31 +16,39 @@ data class ChatMessage(
     val content: String
 )
 
-@Serializable
-data class ChatRequest(
-    val model: String,
-    val messages: List<ChatMessage>,
-    // ⭐ ADD THIS NEW FIELD ⭐
-    // Use @SerialName to match the API's snake_case convention
-    @SerialName("response_format")
-    val responseFormat: Map<String, String>? = null // Make it nullable
-)
+
 
 @Serializable
 data class ChatChoice(
-    val index: Int,
+    val index: Int?,
     val message: ChatMessage
 )
 
-@Serializable
-data class ChatResponse(
-    val choices: List<ChatChoice>
-)
+
 
 @Serializable
 data class Recipe(
+
+
     val title: String = "",
     val description: String="",
     val ingredients: List<String> =emptyList(),
     val instructions: List<String> =emptyList()
 )
+    // Replace your old Chat... classes with these new Gemini... classes
+@Serializable
+data class GeminiRequest(val contents: List<Content>)
+
+@Serializable
+data class Content(val parts: List<Part>)
+
+@Serializable
+data class Part(val text: String)
+
+@Serializable
+data class GeminiResponse(val candidates: List<Candidate>)
+
+@Serializable
+data class Candidate(val content: Content)
+
+// Your Recipe data class can stay exactly the same!

@@ -1,5 +1,7 @@
 package com.example.foodwasting.di
 
+import android.content.Context
+import com.example.foodwasting.classification.TFLiteModel
 import com.example.foodwasting.repository.AuthInterceptor
 import com.example.foodwasting.repository.JsonHandler
 import com.example.foodwasting.repository.MainRepository // Keep this import
@@ -7,6 +9,7 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -37,9 +40,9 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit = Retrofit.Builder()
-        .client(okHttpClient) // Use the client with our interceptor
-        .baseUrl("https://api.openai.com/v1/")
+    fun provideRetrofit(json: Json): Retrofit = Retrofit.Builder()
+        // The Gemini API endpoint
+        .baseUrl("https://generativelanguage.googleapis.com/")
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
 
@@ -47,4 +50,11 @@ object AppModule {
     @Singleton
     fun provideApi(retrofit: Retrofit): JsonHandler =
         retrofit.create(JsonHandler::class.java)
+    @Provides
+    @Singleton
+    fun provideTFLiteModel(@ApplicationContext context: Context): TFLiteModel {
+        return TFLiteModel(context)
+    }
+
+
 }

@@ -13,21 +13,14 @@ fun classify(
   //  labels: List<String> = labels,
     k: Int = 3
 ):String {
-    var mergedList = mutableListOf<Pair<String, Float>>()
-    for (i in probs.indices) {
-        mergedList.add(Pair(labels[i], probs[i]))
-    }
-    /* var x = probs
-        .mapIndexed { i, p -> labels[i] to p }
-        .sortedByDescending { it.second }
-        .take(k)
-        .joinToString("\n") { (l, p) -> "%-10s : %.2f %%".format(l, p * 100) }
-    return x
-
-     */
-    var x =  mergedList.sortedByDescending { it.second }
+    val mergedList = labels.zip(probs.toTypedArray())
+    return mergedList.sortedByDescending { it.second }
         .take(k)
         .joinToString("\n") { (l, p) -> "%-10s : %.5f %%".format(l, p * 100) }
-
-    return x
+}
+fun getTopClassificationLabel(probs: FloatArray): String {
+    // Find the index of the highest probability
+    val maxIndex = probs.indices.maxByOrNull { probs[it] } ?: -1
+    // Return the corresponding label, or a default if something goes wrong
+    return if (maxIndex != -1) labels[maxIndex] else "unknown food"
 }

@@ -7,6 +7,7 @@ plugins {
     id("kotlin-parcelize")
     id("kotlin-android")
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.24"
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -46,6 +47,7 @@ android {
 
 dependencies {
 
+    implementation(libs.firebase.firestore)
     // CameraX
     val camerax_version = "1.4.0-rc01"
     implementation("androidx.camera:camera-core:${camerax_version}")

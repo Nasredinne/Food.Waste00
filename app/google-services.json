@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "397917743240",
+    "project_id": "foodwasting-81a4b",
+    "storage_bucket": "foodwasting-81a4b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:397917743240:android:36300aafdca92320d6973d",
+        "android_client_info": {
+          "package_name": "com.example.foodwasting"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaiGrZXMSyYVjYRh3ORctFhl30VmQf0Ws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
