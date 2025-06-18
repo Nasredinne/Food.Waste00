@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.foodwasting.classification.TFLiteModel
 import com.example.foodwasting.classification.centerCrop
-import com.example.foodwasting.classification.classify
 import com.example.foodwasting.classification.getTopClassificationLabel
 import com.example.foodwasting.model.Recipe
 import com.example.foodwasting.repository.MainRepository
@@ -32,11 +31,24 @@ sealed class RecipeState {
 class MainViewModel @Inject constructor(
     private val repository: MainRepository,
     private val tfLiteModel: TFLiteModel,
-    @ApplicationContext private val applicationContext: Context
+    //@ApplicationContext private val applicationContext: Context
 ) : ViewModel() {
 
     private val _recipeState = MutableStateFlow<RecipeState>(RecipeState.Idle)
     val recipeState = _recipeState.asStateFlow()
+
+    private val _savedRecipes = MutableStateFlow<List<Recipe>>(emptyList())
+    val savedRecipes = _savedRecipes.asStateFlow()
+
+    init {
+        // Start collecting the real-time flow from the repository
+        viewModelScope.launch {
+            repository.getAllRecipes().collect { recipes ->
+                _savedRecipes.value = recipes
+                Log.d("ViewModel", "Updated recipes list with ${recipes.size} items.")
+            }
+        }
+    }
 
     // ⭐ THIS IS THE NEW FUNCTION YOU NEED TO ADD ⭐
     /**
@@ -92,9 +104,9 @@ class MainViewModel @Inject constructor(
     /**
      * A helper function to reset the state, e.g., when the user dismisses a bottom sheet.
      */
-    fun resetState() {
+   /* fun resetState() {
         _recipeState.value = RecipeState.Idle
-    }
+    }*/
     override fun onCleared() {
         super.onCleared()
         tfLiteModel.close()

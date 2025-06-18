@@ -4,7 +4,9 @@ import android.content.Context
 import com.example.foodwasting.classification.TFLiteModel
 import com.example.foodwasting.repository.AuthInterceptor
 import com.example.foodwasting.repository.JsonHandler
-import com.example.foodwasting.repository.MainRepository // Keep this import
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -55,6 +57,10 @@ object AppModule {
     fun provideTFLiteModel(@ApplicationContext context: Context): TFLiteModel {
         return TFLiteModel(context)
     }
-
+    @Provides
+    @Singleton
+    fun provideFirestore(): FirebaseFirestore {
+        return Firebase.firestore
+    }
 
 }

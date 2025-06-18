@@ -3,55 +3,38 @@ package com.example.foodwasting.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.DrawStyle
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import co.yml.charts.axis.AxisConfig
 import co.yml.charts.axis.AxisData
-import co.yml.charts.axis.DataCategoryOptions
-import co.yml.charts.axis.Gravity
 import co.yml.charts.common.model.PlotType
 import co.yml.charts.common.model.Point
-import co.yml.charts.common.utils.DataUtils
 import co.yml.charts.ui.barchart.BarChart
 import co.yml.charts.ui.barchart.models.BarChartData
-import co.yml.charts.ui.barchart.models.BarChartType
 import co.yml.charts.ui.barchart.models.BarData
 import co.yml.charts.ui.barchart.models.BarStyle
 import co.yml.charts.ui.linechart.LineChart
@@ -68,56 +51,17 @@ import co.yml.charts.ui.piechart.charts.DonutPieChart
 import co.yml.charts.ui.piechart.models.PieChartConfig
 import co.yml.charts.ui.piechart.models.PieChartData
 import com.example.foodwasting.R
-import com.example.foodwasting.model.Recipie
-import com.example.foodwasting.ui.theme.backgroundDark
-import com.example.foodwasting.ui.theme.bodyFontFamily
+import com.example.foodwasting.model.Recipe
 import com.example.foodwasting.ui.theme.fontAladin
-import com.example.foodwasting.ui.theme.fontEconomica
 import com.example.foodwasting.ui.theme.lightBackground
-import com.example.foodwasting.ui.theme.onPrimaryLight
 
-@Composable
-fun SearchBar(modifier: Modifier = Modifier) {
-    var textFealdvaluew by remember {
-        mutableStateOf("")
-    }
-    Row {
-        for (i in 1..5) {
-            Card(
-                modifier = Modifier
-                    .size(width = 50.dp, height = 20.dp)
-                    .padding(3.dp)
-                    .height(35.dp)
-                    .clip(shape = RoundedCornerShape(20.dp)),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.Gray,
-                    contentColor = Color.White
-                )
-            ) {
-                Text("tag", modifier = Modifier.padding(5.dp),
-                    fontSize = 11.sp,
-                    color = Color.White
-                    )
-            }
-        }
-    }
-    OutlinedTextField(
-        shape = RoundedCornerShape(12.dp),
-        value = textFealdvaluew,
-        label = { Text("Enter Your Name") },
-        onValueChange = { textFealdvaluew = it },
-        modifier = modifier
-            .fillMaxWidth()
-            .height(66.dp)
 
-    )
-}
 
 
 @Composable
 fun FoodCard(
     text: String,
-    list: List<Recipie>,
+    list: List<Recipe>,
     color: Color, modifier: Modifier = Modifier
 ) {
     Card(
@@ -144,19 +88,55 @@ fun FoodCard(
 
 
             ) {
-                items(list) { item ->
-                    Recepiecard(item)
+                items(list) {  recipe ->
+                    // ⭐ FIX: Calling our new, beautiful RecipeCard ⭐
+                    RecipeCard(recipe = recipe)
                 }
             }
         }
 
     }
 }
+@Composable
+private fun RecipeCard(recipe: Recipe) {
+    Card(
+        modifier = Modifier
+            .width(160.dp) // A good width for a card in a LazyRow
+            .height(180.dp), // A good height to fit content
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White) // Or use a theme color like MaterialTheme.colorScheme.surface
+                .padding(12.dp)
+        ) {
+            // Display the recipe title
+            Text(
+                text = recipe.title,
+                style = MaterialTheme.typography.titleMedium, // Use theme typography
+                fontWeight = FontWeight.Bold,
+                maxLines = 2, // Prevent long titles from taking too much space
+                overflow = TextOverflow.Ellipsis // Add '...' if title is too long
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            // Display the recipe description
+            Text(
+                // ⭐ FIX: Using the correct 'description' field
+                text = recipe.description,
+                style = MaterialTheme.typography.bodySmall, // Use theme typography
+                maxLines = 4,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
 
-
+/*
 @Composable
 private fun Recepiecard(
-    recipie: Recipie = Recipie("ff","qdqsds")
+    recipie: Recipe = Recipie("ff","qdqsds")
 ) {
     Column(
         modifier = Modifier
@@ -177,10 +157,10 @@ private fun Recepiecard(
             ))
     }
 }
-
+*/
 
 @Composable
-fun categories(modifier: Modifier = Modifier) {
+fun Categories() {
     val png = R.drawable.img_apple
     val foodList = listOf(
         png,
@@ -298,7 +278,7 @@ fun FoodBarChart(modifier: Modifier = Modifier) {
 
 
 @Composable
-fun FoodLineChart(modifier: Modifier = Modifier) {
+fun FoodLineChart() {
 
     val steps = 10
     val yScale = 20 / steps

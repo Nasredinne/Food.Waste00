@@ -1,9 +1,8 @@
 package com.example.foodwasting.model
 
-import android.icu.text.CaseMap.Title
-import kotlinx.serialization.SerialName
+import com.google.firebase.firestore.DocumentId
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
+
 
 @Serializable
 data class Recipie(
@@ -18,22 +17,18 @@ data class ChatMessage(
 
 
 
-@Serializable
-data class ChatChoice(
-    val index: Int?,
-    val message: ChatMessage
-)
 
 
 
 @Serializable
+// @Entity(tableName = "recipes") // <-- DELETE THIS LINE
 data class Recipe(
-
-
+    @DocumentId
+    val id: String = "",
     val title: String = "",
-    val description: String="",
-    val ingredients: List<String> =emptyList(),
-    val instructions: List<String> =emptyList()
+    val description: String = "",
+    val ingredients: List<String> = emptyList(),
+    val instructions: List<String> = emptyList()
 )
     // Replace your old Chat... classes with these new Gemini... classes
 @Serializable
