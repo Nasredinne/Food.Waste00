@@ -1,37 +1,66 @@
 package com.example.foodwasting.di
 
-import com.example.foodwasting.model.BASE_URL
+import android.content.Context
+import com.example.foodwasting.classification.TFLiteModel
+import com.example.foodwasting.repository.AuthInterceptor
 import com.example.foodwasting.repository.JsonHandler
-import com.example.foodwasting.repository.MainRepository
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
-
 
 @Module
 @InstallIn(SingletonComponent::class)
-class AppModule {
+object AppModule {
 
-
-
-
-    @Singleton
     @Provides
-    fun provideRetrofit(): Retrofit = Retrofit.Builder().baseUrl(BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
+    @Singleton
+    fun provideJson(): Json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        encodeDefaults = true
+    }
+
+    // Teach Hilt how to build an OkHttpClient with our interceptor
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(json: Json): Retrofit = Retrofit.Builder()
+        // The Gemini API endpoint
+        .baseUrl("https://generativelanguage.googleapis.com/")
+        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
 
-    @Singleton
     @Provides
-    fun provideApi(retrofit: Retrofit):JsonHandler =
+    @Singleton
+    fun provideApi(retrofit: Retrofit): JsonHandler =
         retrofit.create(JsonHandler::class.java)
-
-
-    @Singleton
     @Provides
-    fun provideRepository(api: JsonHandler): MainRepository = MainRepository(api)
+    @Singleton
+    fun provideTFLiteModel(@ApplicationContext context: Context): TFLiteModel {
+        return TFLiteModel(context)
+    }
+    @Provides
+    @Singleton
+    fun provideFirestore(): FirebaseFirestore {
+        return Firebase.firestore
+    }
+
 }

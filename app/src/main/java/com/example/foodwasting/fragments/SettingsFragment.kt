@@ -15,7 +15,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.foodwasting.model.Recipe
-import com.example.foodwasting.recipieGenerator.fetchRecipe
 import com.example.foodwasting.viewmodel.MainViewModel
 import com.example.foodwasting.viewmodel.RecipeState
 import kotlinx.coroutines.launch
@@ -38,7 +37,7 @@ fun SettingsFragment(
             onClick = {
 
                 //val recipeState = viewModel.recipeState
-
+                
                 /*if (recipeState is RecipeState.Success) {
                     recipe = recipeState.recipe!!
                     title.add(recipe.title)

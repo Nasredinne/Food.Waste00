@@ -3,227 +3,170 @@
 package com.example.foodwasting.screens
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import android.graphics.Matrix
 import android.util.Log
-import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
-import com.example.foodwasting.MainActivity
-import com.example.foodwasting.classification.TFLiteModel
-import com.example.foodwasting.classification.centerCrop
-import com.example.foodwasting.classification.classify
 import com.example.foodwasting.ui.theme.lightgreen
+import com.example.foodwasting.viewmodel.MainViewModel
+import com.example.foodwasting.R
+import com.example.foodwasting.viewmodel.RecipeState
 
-
-@SuppressLint("ContextCastToActivity")
+@SuppressLint("MissingPermission")
 @Composable
 fun CameraScreen(
     navController: NavController,
-    modifier: Modifier = Modifier
+    viewModel: MainViewModel = hiltViewModel()
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
-
-    /*  BottomSheetScaffold(
-          scaffoldState = scaffoldState,
-          sheetPeekHeight = 0.dp,
-          sheetContent = {}
-      ) {
-          padding ->
-
-
-      } */
-    var result by remember { mutableStateOf<FloatArray?>(null) }
-    var classificationResult = remember {
-        mutableStateOf<String>("")
-    }
-
-    val context = LocalContext.current as MainActivity
-    var imageBitted = remember {
-        mutableStateOf<Bitmap?>(null)
-    }
-
+    val recipeState by viewModel.recipeState.collectAsState()
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val controller = remember {
         LifecycleCameraController(context).apply {
-            setEnabledUseCases(
-                CameraController.IMAGE_CAPTURE or
-                        CameraController.VIDEO_CAPTURE
-            )
+            setEnabledUseCases(CameraController.IMAGE_CAPTURE)
         }
     }
-    val lifecycleOwner = LocalLifecycleOwner.current
-    // Ensure the controller is bound ONCE when Composable is composed
-    LaunchedEffect(controller) {
+    LaunchedEffect(Unit) {
         controller.bindToLifecycle(lifecycleOwner)
     }
+    LaunchedEffect(recipeState) {
+        if (recipeState !is RecipeState.Idle) {
+            scaffoldState.bottomSheetState.expand()
+        }
+    }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(0.dp)
-    ) {
-        if (imageBitted.value != null) {
-            /*Image(
-                bitmap = imageBitted.value!!.asImageBitmap(),
-                contentDescription = "Captured Image",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit
-            )
-            Text(
-                "Top result value: size ${result?.size} => ${classificationResult.value}",
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 30.dp)
-            )*/
-
-        } else {
-            CameraPreview(
-                controller = controller,
+    BottomSheetScaffold(
+        scaffoldState = scaffoldState,
+        sheetPeekHeight = 0.dp,
+        sheetContent = {
+            RecipeSheetContent(state = recipeState)
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            AndroidView(
+                factory = { ctx -> PreviewView(ctx).apply { this.controller = controller } },
                 modifier = Modifier.fillMaxSize()
             )
+
+            // Bounding box overlay
             Box(
                 modifier = Modifier
                     .size(300.dp)
-                    .border(border = BorderStroke(1.dp , color = lightgreen))
+                    .border(border = BorderStroke(2.dp, color = lightgreen))
                     .align(Alignment.Center)
             )
-        }
-        /*
-        val boxSizeInPx = 200f
 
-        // Convert pixels to dp inside a composable
-        val boxSizeInDp = with(LocalDensity.current) { boxSizeInPx.toDp() }
+            // Done Button (top-right)
+            IconButton(
+                onClick = { navController.navigate(com.example.foodwasting.utils.Routes.mainScreen.route) },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Done,
+                    contentDescription = "Done",
+                    tint = Color.Green
+                )
+            }
 
-        */
-
-        
-        FloatingActionButton(
-            onClick = {
-                controller.takePicture(
-                    ContextCompat.getMainExecutor(context),
-                    object : OnImageCapturedCallback() {
-                        override fun onCaptureSuccess(image: ImageProxy) {
-                            try {
-                                val matrix = Matrix().apply {
-                                    postRotate(image.imageInfo.rotationDegrees.toFloat())
-                                }
-                                val rotatedBitmap = Bitmap.createBitmap(
-                                    image.toBitmap(),
-                                    0,
-                                    0,
-                                    image.width,
-                                    image.height,
-                                    matrix,
-                                    true
-                                )
-
-                                val cropedImage = rotatedBitmap.centerCrop(500, 500)
-
-                                imageBitted.value = cropedImage
-
-                                // Run model inference
-                                val tfLiteModel = TFLiteModel(context)
-                                result = tfLiteModel.runModel(cropedImage)
-
-                                Log.d("CameraScreen", "Model run successfully ${result?.joinToString("||")}")
-                                classificationResult.value = classify(result!!)
-                            } catch (e: Exception) {
-                                Log.e("CameraScreen", "Error during model run: ${e.message}")
-                                e.printStackTrace()
-                            } finally {
-                                image.close()
+            // Capture Button
+            FloatingActionButton(
+                onClick = {
+                    controller.takePicture(
+                        ContextCompat.getMainExecutor(context),
+                        object : OnImageCapturedCallback() {
+                            override fun onCaptureSuccess(image: ImageProxy) {
+                                viewModel.processImageAndFetchRecipe(image)
+                            }
+                            override fun onError(exception: ImageCaptureException) {
+                                Log.e("CameraScreen", "Capture error: ", exception)
                             }
                         }
-
-                        override fun onError(exception: ImageCaptureException) {
-                            Log.e("CameraScreen", "Capture error: ${exception.message}")
-                            exception.printStackTrace()
-                        }
-                    }
-                )
-            },
-            modifier = Modifier
-                .padding(100.dp)
-                .align(Alignment.BottomCenter)
-        ) {}
+                    )
+                },
+                modifier = Modifier
+                    .padding(bottom = 48.dp)
+                    .align(Alignment.BottomCenter)
+            ) {
+                Icon(painter = painterResource(R.drawable.camera), contentDescription = "Take Picture")
+            }
+        }
     }
 }
 
-@SuppressLint("ContextCastToActivity")
 @Composable
-fun CameraPreview(
-    controller: LifecycleCameraController,
-    modifier: Modifier
-) {
-
-
-    AndroidView(
-        factory = { ctx ->
-            PreviewView(ctx).apply {
-                this.controller = controller
-
+fun RecipeSheetContent(state: RecipeState) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 250.dp) // Give the sheet a nice default size
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        when (state) {
+            is RecipeState.Idle -> {
+                // Can be empty or show a prompt
+                Text("Take a picture of a food item to get a recipe!")
             }
-            /*  val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
-              cameraProviderFuture.addListener({
-                  val cameraProvider = cameraProviderFuture.get()
-                  val preview = Preview.Builder().build().also {
-                      it.setSurfaceProvider(previewView.surfaceProvider)
-                  }
-                  val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-                  try {
-                      cameraProvider.unbindAll()
-                      cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
-                  } catch (exc: Exception) {
-                      Log.e("CameraPreview", "Use case binding failed", exc)
-                  }
-
-
-                  //cameraProvider.
-              }, ContextCompat.getMainExecutor(ctx)) */
-            //  previewView
-        },
-        modifier = modifier
-
-
-    )
+            is RecipeState.Loading -> {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator()
+                    Spacer(Modifier.height(16.dp))
+                    Text("Finding a creative recipe...")
+                }
+            }
+            is RecipeState.Error -> {
+                Text(
+                    text = "Error: ${state.message}",
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+            is RecipeState.Success -> {
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                        .alpha(0.5f),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(state.recipe.title, style = MaterialTheme.typography.headlineMedium)
+                    Spacer(Modifier.height(8.dp))
+                    Text(state.recipe.description, style = MaterialTheme.typography.bodyLarge)
+                    Spacer(Modifier.height(16.dp))
+                    Text("Ingredients:", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    state.recipe.ingredients.forEach { ingredient ->
+                        Text("• $ingredient")
+                    }
+                    // Add instructions similarly if needed
+                }
+            }
+        }
+    }
 }
