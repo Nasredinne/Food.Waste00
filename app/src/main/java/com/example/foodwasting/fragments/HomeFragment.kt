@@ -57,10 +57,8 @@ import com.example.foodwasting.viewmodel.MainViewModel
 
 
 @Composable
-fun HomeFragment(navController: NavController,
-                 viewModel: MainViewModel = hiltViewModel()) {
+fun HomeFragment(navController: NavController, viewModel: MainViewModel = hiltViewModel()) {
     val savedRecipes by viewModel.savedRecipes.collectAsState()
-
 
     Box(
         modifier = Modifier
@@ -232,7 +230,4 @@ fun HomeFragment(navController: NavController,
             )
         }
     }
-
 }
-
-
