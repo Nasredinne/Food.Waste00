@@ -13,6 +13,8 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.*
@@ -124,20 +126,21 @@ fun CameraScreen(
 
 @Composable
 fun RecipeSheetContent(state: RecipeState) {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 250.dp) // Give the sheet a nice default size
+            .fillMaxHeight() // allow taking full height
+            .verticalScroll(rememberScrollState()) // make it scrollable
             .padding(16.dp),
-        contentAlignment = Alignment.Center
+        horizontalAlignment = Alignment.Start
     ) {
         when (state) {
             is RecipeState.Idle -> {
-                // Can be empty or show a prompt
                 Text("Take a picture of a food item to get a recipe!")
             }
             is RecipeState.Loading -> {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator()
                     Spacer(Modifier.height(16.dp))
                     Text("Finding a creative recipe...")
@@ -150,19 +153,13 @@ fun RecipeSheetContent(state: RecipeState) {
                 )
             }
             is RecipeState.Success -> {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    Text(state.recipe.title, style = MaterialTheme.typography.headlineMedium)
-                    Spacer(Modifier.height(8.dp))
-                    Text(state.recipe.description, style = MaterialTheme.typography.bodyLarge)
-                    Spacer(Modifier.height(16.dp))
-                    Text("Ingredients:", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    state.recipe.ingredients.forEach { ingredient ->
-                        Text("• $ingredient")
-                    }
-                    // Add instructions similarly if needed
+                Text(state.recipe.title, style = MaterialTheme.typography.headlineMedium)
+                Spacer(Modifier.height(8.dp))
+                Text(state.recipe.description, style = MaterialTheme.typography.bodyLarge)
+                Spacer(Modifier.height(16.dp))
+                Text("Ingredients:", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                state.recipe.ingredients.forEach { ingredient ->
+                    Text("• $ingredient")
                 }
             }
         }

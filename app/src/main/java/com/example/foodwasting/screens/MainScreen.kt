@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -46,7 +47,6 @@ import com.example.foodwasting.utils.FragmentRoutes
 fun MainScreen(
     navController: NavController
 ) {
-
     val bottomNavController = rememberNavController()
     Scaffold(
         modifier = Modifier
@@ -112,37 +112,35 @@ fun BottomNavBar(
     val fragmentes = listOf(
         FragmentRoutes.Home,
         FragmentRoutes.Profile,
-        FragmentRoutes.Settings
     )
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
     NavigationBar(
         containerColor = lightgreen,
-        modifier = Modifier.clip(RoundedCornerShape(10.dp))
+        modifier = Modifier.clip(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
     ) {
         fragmentes.forEach { fragment ->
             val isSelected = currentDestination?.route == fragment.route
             NavigationBarItem(
                 selected = isSelected,
-
                 onClick = { navController.navigate(fragment.route) },
                 icon = {
                     Icon(
                         painter = painterResource(id = fragment.icon),
                         contentDescription = fragment.title,
                         modifier = Modifier.size(30.dp),
-                        tint = if (isSelected) Color.White else Color.Gray
+                       // tint = if (isSelected) Color.White else Color.Gray
                     )
-                }
-
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.White,
+                    unselectedIconColor = Color.Gray,
+                    indicatorColor = Color.Transparent
+                )
             )
-
-
         }
-
     }
-
 }
 
 @Composable

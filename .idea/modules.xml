@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Food.Waste00.iml" filepath="$PROJECT_DIR$/.idea/Food.Waste00.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/food_wasting.iml" filepath="$PROJECT_DIR$/.idea/modules/food_wasting.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/food_wasting.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/food_wasting.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/food_wasting.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/food_wasting.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/food_wasting.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/food_wasting.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/food_wasting.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/food_wasting.app.unitTest.iml" />
     </modules>
   </component>
 </project>

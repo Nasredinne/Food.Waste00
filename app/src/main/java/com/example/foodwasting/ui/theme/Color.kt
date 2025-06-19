@@ -7,7 +7,8 @@ val lightBackground = Color(0xFFFDFAF6)
 
 
 
-
+val white = Color(0xFFFFFFFF)
+    .copy(alpha = 0.97f)
 
 val primaryLight = Color(0xFF316A41)
 val onPrimaryLight = Color(0xFFFFFFFF)

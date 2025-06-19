@@ -30,7 +30,6 @@ data class Recipe(
     val ingredients: List<String> = emptyList(),
     val instructions: List<String> = emptyList()
 )
-    // Replace your old Chat... classes with these new Gemini... classes
 @Serializable
 data class GeminiRequest(val contents: List<Content>)
 

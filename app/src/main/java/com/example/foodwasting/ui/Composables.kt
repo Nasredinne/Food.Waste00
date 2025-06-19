@@ -3,6 +3,7 @@ package com.example.foodwasting.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -82,10 +83,10 @@ fun FoodCard(
 
             )
             LazyRow(
-                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp),
+                contentPadding = PaddingValues(7.dp),
                 verticalAlignment = Alignment.Top,
-                modifier = Modifier.fillMaxSize()
-
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
 
             ) {
                 items(list) {  recipe ->
